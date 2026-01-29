@@ -98,6 +98,215 @@ description: Java Web 源码路由与参数映射分析工具。从源码中提�
 - 优先使用已存在的源码
 - 记录反编译来源以便追溯
 
+---
+
+## ⚠️ Struts2 通配符路由强制展开（CRITICAL）
+
+### 适用场景
+
+当 struts.xml 中存在以下通配符配置时，必须执行强制展开：
+- `name="*_*"` - 双通配符
+- `name="user_*"` - 单通配符
+- `name="*"` - 全匹配
+
+### 强制执行步骤（不可跳过）
+
+**步骤 1：识别通配符配置**
+```xml
+<!-- 示例：检测到此类配置 -->
+<action name="*_*" class="{1}Action" method="{2}">
+```
+
+**步骤 2：反编译该 namespace 下所有 Action 类**
+```bash
+# 必须执行，不允许跳过
+mcp__java-decompile-mcp__decompile_directory(
+    directory_path="{WEB-INF/classes/对应包路径}",
+    recursive=true,
+    save_to_file=true
+)
+```
+
+**步骤 3：提取每个 Action 类的业务方法**
+
+从反编译结果中提取：
+- 所有 public 方法
+- 排除：getter/setter（get*/set*/is*）
+- 排除：继承自 ActionSupport 的方法（execute 除外）
+- 保留：所有其他 public 方法
+
+**步骤 4：生成路由映射表**
+
+| Action 类 | 方法 | 完整 URL |
+|:----------|:-----|:---------|
+| LoginAction | login | /admin/login_login.action |
+| LoginAction | logout | /admin/login_logout.action |
+| UserAction | list | /admin/user_list.action |
+| UserAction | add | /admin/user_add.action |
+| ... | ... | ... |
+
+**步骤 5：为每个路由生成独立请求模板**
+
+### 禁止的输出格式
+
+❌ **错误示例 1**：使用占位符
+```markdown
+URL: `/admin/{action}_{method}.action`
+支持的Action: LoginAction, UserAction, DeviceAction等
+```
+
+❌ **错误示例 2**：使用"等"省略
+```markdown
+支持的方法: list, add, edit, delete等
+```
+
+❌ **错误示例 3**：只列出类名不列出方法
+```markdown
+### UserAction
+该Action支持多个方法，包括用户管理相关操作。
+```
+
+### 必须的输出格式
+
+✅ **正确示例**：每个路由独立条目
+```markdown
+=== [1] login_login.action ===
+URL: `/admin/login_login.action`
+方法: LoginAction.login()
+参数: loginName (String), password (String)
+
+Burp Suite 请求模板:
+\```http
+POST /admin/login_login.action HTTP/1.1
+Host: {{host}}
+Content-Type: application/x-www-form-urlencoded
+
+loginName={{username}}&password={{password}}
+\```
+
+=== [2] login_logout.action ===
+URL: `/admin/login_logout.action`
+方法: LoginAction.logout()
+...
+```
+
+---
+
+## ⚠️ Web Service 方法完整输出规则（CRITICAL）
+
+### 强制执行步骤
+
+**步骤 1：从配置文件获取所有 endpoint**
+```xml
+<jaxws:endpoint id="userService"
+                implementor="#userServiceImpl"
+                address="/UserService"/>
+```
+
+**步骤 2：反编译每个 Service 实现类**
+```bash
+mcp__java-decompile-mcp__decompile_file(
+    file_path="{实现类.class路径}",
+    save_to_file=true
+)
+```
+
+**步骤 3：提取所有 public 方法**
+
+从反编译结果中提取：
+- 方法名
+- 参数列表（名称 + 类型）
+- 返回类型
+
+**步骤 4：为每个方法生成独立 SOAP 请求模板**
+
+### 禁止的输出格式
+
+❌ **错误示例 1**：只给描述不给方法列表
+```markdown
+### FaceInfoService
+**方法列表**: 人脸识别、人脸查询等相关功能
+```
+
+❌ **错误示例 2**：使用范围表示
+```markdown
+**可用的interfaceId**: admin_001_001 ~ admin_001_050 (共50个)
+```
+
+❌ **错误示例 3**：只给 WSDL 地址
+```markdown
+### UserService
+WSDL: /admin/services/UserService?wsdl
+请通过 WSDL 查看可用方法。
+```
+
+### 必须的输出格式
+
+✅ **正确示例**：每个方法独立条目
+```markdown
+### UserService (共 5 个方法)
+
+=== [WS-1] login ===
+方法签名: login(String loginName, String password)
+返回类型: String
+
+Burp Suite 请求模板:
+\```http
+POST /admin/services/UserService HTTP/1.1
+Host: {{host}}
+Content-Type: text/xml; charset=utf-8
+SOAPAction: ""
+
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+                  xmlns:web="http://webservice.example.com">
+  <soapenv:Header/>
+  <soapenv:Body>
+    <web:login>
+      <loginName>{{username}}</loginName>
+      <password>{{password}}</password>
+    </web:login>
+  </soapenv:Body>
+</soapenv:Envelope>
+\```
+
+=== [WS-2] logout ===
+方法签名: logout(String sessionId)
+...
+
+=== [WS-3] getUserInfo ===
+...
+```
+
+### executeInterface 类型服务特殊处理
+
+对于使用 interfaceId 参数路由的通用执行接口：
+
+**步骤 1：反编译实现类，查找所有 interfaceId 定义**
+
+**步骤 2：为每个 interfaceId 生成独立请求模板**
+
+```markdown
+=== [WS-1] admin_001_001 - 查询设备 ===
+interfaceId: admin_001_001
+功能: queryDevice
+参数: {"deviceId": "...", "orgId": "..."}
+
+Burp Suite 请求模板:
+\```http
+POST /admin/services/AdminWebService HTTP/1.1
+...
+<web:executeInterface>
+  <interfaceId>admin_001_001</interfaceId>
+  <jsonParam>{"deviceId":"{{deviceId}}","orgId":"{{orgId}}"}</jsonParam>
+</web:executeInterface>
+\```
+
+=== [WS-2] admin_001_002 - 添加设备 ===
+...
+```
+
+---
+
 **Web Service (CXF/JAX-WS) 特殊处理：**
 
 ⚠️ **CRITICAL: 配置文件优先原则**
@@ -481,6 +690,188 @@ SOAPAction: ""
 6. **【CRITICAL】执行完整性检查（见下方检查清单）**
 7. 在输出中告知用户所有文件保存位置
 8. 确保每个文件都有完整的接口模板
+
+---
+
+## ⚠️ 输出前强制验证（BLOCKING）
+
+**此验证必须通过才能写入文件，验证不通过时必须返回补充内容。**
+
+### 验证 1：数量一致性检查
+
+| 检查项 | 计算公式 | 通过条件 |
+|:-------|:---------|:---------|
+| Struts2 路由 | 实际模板数 ÷ Action类数 | ≥ 3 |
+| REST 接口 | 实际模板数 ÷ Controller类数 | ≥ 2 |
+| Web Service 方法 | 实际模板数 ÷ 反编译获得的方法数 | = 100% |
+
+**示例验证**：
+```
+声称: 218 个 Action 类，预估 1000+ 路由
+实际输出: 10 个请求模板
+验证: 10 ÷ 218 = 0.046 < 3
+结果: ❌ 不通过，必须补充
+```
+
+### 验证 2：省略词检测
+
+扫描输出内容，检测以下省略标志：
+
+| 检测模式 | 示例 | 处理 |
+|:---------|:-----|:-----|
+| 使用"等" | `LoginAction, UserAction等` | ❌ 必须列出全部 |
+| 使用"..." | `method1, method2, ...` | ❌ 必须列出全部 |
+| 使用"其他" | `以及其他20个方法` | ❌ 必须列出全部 |
+| 使用"更多" | `更多接口请查看源码` | ❌ 必须列出全部 |
+| 使用占位符 | `{action}_{method}.action` | ❌ 必须展开为实际值 |
+| 使用范围 | `001 ~ 050` | ❌ 必须逐个列出 |
+| 使用描述替代列表 | `方法列表: 用户管理相关` | ❌ 必须列出具体方法 |
+
+**检测到任何省略标志时**：必须替换为完整内容。
+
+### 验证 3：文件完整性检查
+
+```markdown
+□ 主索引中每个模块都有对应的详情文件
+□ 每个详情文件都包含完整的请求模板（不是摘要）
+□ Web Service 索引中的每个服务都有完整的方法列表
+□ 没有"详见xxx"但 xxx 文件不存在的情况
+```
+
+### 验证不通过时的处理流程
+
+```
+1. 停止当前输出
+2. 识别缺失的内容类型（Struts2 路由 / WS 方法 / 其他）
+3. 执行反编译获取完整信息
+4. 补充缺失的请求模板
+5. 重新执行验证
+6. 验证通过后才写入文件
+```
+
+---
+
+## 大型项目分批处理策略
+
+### 触发条件
+
+当满足以下任一条件时，启用分批处理：
+- 预估接口总数 > 100
+- 单个 namespace 接口数 > 30
+- 单个 Web Service 方法数 > 20
+
+### 分批处理步骤
+
+**步骤 1：按 namespace/模块分组**
+
+```
+admin 模块:
+  - / namespace: 15 个路由
+  - /device namespace: 45 个路由
+  - /channel namespace: 30 个路由
+  - ...
+```
+
+**步骤 2：逐个 namespace 处理**
+
+```
+处理 /device namespace:
+  1. 反编译该 namespace 下所有 Action
+  2. 提取所有方法
+  3. 生成所有请求模板
+  4. 验证完整性
+  5. 写入文件
+  6. 确认完成后，进入下一个 namespace
+```
+
+**步骤 3：增量写入**
+
+- 每完成 10 个接口立即写入文件
+- 不要等待全部分析完成再输出
+- 避免因上下文过长导致遗漏
+
+**步骤 4：进度检查点**
+
+每个 namespace 完成后：
+```markdown
+✅ /device namespace 完成
+   - Action 类: 8 个
+   - 生成请求模板: 45 个
+   - 验证: 45 ÷ 8 = 5.6 ≥ 3 ✓
+
+⏳ /channel namespace 处理中...
+```
+
+### 文件命名规则
+
+对于大型项目，按 namespace 拆分文件：
+
+```
+{project}_route_audit_{date}.md              # 主索引
+{project}_module_{module}_{date}.md          # 模块概览
+{project}_{module}_{namespace}_{date}.md     # namespace 详情
+
+示例（假设项目名为 myapp）：
+myapp_route_audit_20260129.md
+myapp_module_admin_20260129.md
+myapp_admin_device_20260129.md
+myapp_admin_channel_20260129.md
+myapp_admin_api_20260129.md
+```
+
+---
+
+## 自动修正规则
+
+当检测到省略内容时，自动执行修正：
+
+### 修正规则表
+
+| 检测到的问题 | 自动修正动作 |
+|:-------------|:-------------|
+| `Action1, Action2等` | 反编译获取完整 Action 列表，替换为全部 |
+| `{action}_{method}.action` | 反编译获取实际方法，展开为具体 URL |
+| `方法列表: 描述文字` | 反编译获取方法签名，替换为具体方法 |
+| `共N个方法` 但列出 < N | 补充缺失的方法直到数量匹配 |
+| `interfaceId: xxx ~ yyy` | 展开为逐个 interfaceId |
+
+### 修正示例
+
+**修正前**：
+```markdown
+### /c namespace
+支持的 Action: CommonQuery, SpecialQuery, TogetherQuery 等 (共7个)
+```
+
+**修正后**：
+```markdown
+### /c namespace
+
+=== [1] CommonQuery_list ===
+URL: /admin/c/CommonQuery_list.action
+[完整请求模板]
+
+=== [2] CommonQuery_query ===
+URL: /admin/c/CommonQuery_query.action
+[完整请求模板]
+
+=== [3] SpecialQuery_list ===
+...
+
+=== [4] TogetherQuery_list ===
+...
+
+=== [5] IntervalQuery_list ===
+...
+
+=== [6] CollisionQuery_list ===
+...
+
+=== [7] DistrustfulQuery_list ===
+...
+
+（共 7 个 Action，已全部列出，每个 Action 的所有方法均有独立模板）
+```
 
 ---
 
