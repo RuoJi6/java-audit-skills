@@ -535,10 +535,11 @@ Content-Type: application/json
 
 | 文件类型 | 命名格式 | 示例 |
 |---------|---------|------|
-| 主索引 | `{项目名}_route_audit_{时间戳}.md` | `myapp_route_audit_20260121.md` |
-| 模块详情 | `{项目名}_module_{模块名}_{时间戳}.md` | `myapp_module_admin_20260121.md` |
-| Web Service | `{项目名}_ws_{服务名}_{时间戳}.md` | `myapp_ws_userservice_20260121.md` |
-| Namespace 拆分 | `{项目名}_{namespace}_{时间戳}.md` | `myapp_admin_user_20260121.md` |
+| 主索引 | `{项目名}_route_audit/{项目名}_route_audit_{时间戳}.md` | `myapp_route_audit/myapp_route_audit_20260121.md` |
+| 模块详情 | `{项目名}_route_audit/{项目名}_module_{模块名}_{时间戳}.md` | `myapp_route_audit/myapp_module_admin_20260121.md` |
+| Web Service | `{项目名}_route_audit/{项目名}_ws_{服务名}_{时间戳}.md` | `myapp_route_audit/myapp_ws_userservice_20260121.md` |
+| Namespace 拆分 | `{项目名}_route_audit/{项目名}_{namespace}_{时间戳}.md` | `myapp_route_audit/myapp_admin_user_20260121.md` |
+| README | `{项目名}_route_audit/{项目名}_README_{时间戳}.md` | `myapp_route_audit/myapp_README_20260121.md` |
 
 **动态模块名示例：**
 
@@ -570,10 +571,12 @@ Content-Type: application/json
 为每个模块生成独立的 MD 文件：
 
 ```
-{project_name}_route_audit_{timestamp}.md         # 主索引文件
-{project_name}_module_admin_{timestamp}.md        # admin 模块详情
-{project_name}_module_itc_{timestamp}.md         # itc 模块详情
-{project_name}_module_xxx_{timestamp}.md         # 其他模块（动态生成）
+{project_name}_route_audit/
+├── {project_name}_route_audit_{timestamp}.md         # 主索引文件
+├── {project_name}_module_admin_{timestamp}.md        # admin 模块详情
+├── {project_name}_module_itc_{timestamp}.md          # itc 模块详情
+├── {project_name}_module_xxx_{timestamp}.md          # 其他模块（动态生成）
+└── {project_name}_README_{timestamp}.md              # 说明文档
 ```
 
 **主索引文件内容：**
@@ -1284,6 +1287,7 @@ A: 需要反编译 Service 实现类以获取方法定义
 - [JAXRS.md](references/JAXRS.md)
 - [SERVLET.md](references/SERVLET.md)
 - [ANNOTATIONS.md](references/ANNOTATIONS.md)
+- [DECOMPILE_STRATEGY.md](references/DECOMPILE_STRATEGY.md) - 反编译策略指南
 ```
 
 ---
