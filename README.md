@@ -10,6 +10,7 @@
 - **反编译集成**：集成 Java 反编译器，支持分析已编译的 .class 和 .jar 文件
 - **Burp Suite 集成**：生成可直接用于 Burp Suite Repeater 的请求模板
 - **接口文档生成**：为无 API 文档的项目生成接口清单
+- **鉴权机制审计**：识别鉴权框架实现，分析鉴权绕过和越权访问风险
 
 ## 前置要求
 
@@ -34,6 +35,20 @@ java-audit-skills/
     │   └── scripts/            # 辅助脚本
     │       ├── detect_framework.py   # 框架检测脚本
     │       └── scan_routes.py        # 路由扫描脚本
+    ├── java-auth-audit/         # Java 鉴权机制审计工具
+    │   ├── SKILL.md            # Skill 定义文件
+    │   └── references/         # 鉴权参考资料
+    │       ├── ANNOTATION_AUTH.md   # 注解鉴权参考
+    │       ├── BYPASS_PATTERNS.md  # 鉴权绕过模式
+    │       ├── DECOMPILE_STRATEGY.md # 反编译策略
+    │       ├── FILTER_INTERCEPTOR.md # Filter/Interceptor 拦截器
+    │       ├── JWT.md            # JWT 鉴权机制
+    │       ├── SESSION_AUTH.md   # Session 鉴权机制
+    │       ├── SHIRO.md          # Apache Shiro 鉴权
+    │       ├── SPRING_SECURITY.md # Spring Security 鉴权
+    │       ├── URI_PARSING_BYPASS.md # URI 解析绕过
+    │       ├── VERSION_VULNS.md  # 框架版本漏洞
+    │       └── VULNERABILITY_CHECKLIST.md # 漏洞检查清单
     └── README.md               # Skills 目录说明
 ```
 
@@ -84,6 +99,56 @@ Content-Type: application/json
 ---
 ```
 
+### java-auth-audit
+
+**Java Web 源码鉴权机制审计工具**
+
+适用场景：
+- 识别项目中使用的鉴权框架和实现方式
+- 发现鉴权绕过漏洞
+- 分析越权访问风险
+- 审计权限校验逻辑
+
+**支持框架：**
+- Spring Security
+- Apache Shiro
+- JWT 鉴权
+- Session 鉴权
+- Filter/Interceptor 拦截器
+- 自定义鉴权实现
+
+**核心功能：**
+1. 自动识别鉴权框架类型和版本
+2. 提取鉴权配置和拦截规则
+3. 分析鉴权绕过模式（URL 解析绕过、权限校验绕过等）
+4. 识别越权访问风险（IDOR、水平/垂直越权）
+5. 检测框架版本已知漏洞
+6. 支持 .class 和 .jar 文件的反编译分析
+
+**使用示例：**
+
+```
+输入: 项目源码路径
+输出: 鉴权机制分析报告、漏洞发现清单
+
+=== 鉴权框架识别 ===
+框架: Spring Security
+版本: 5.7.2
+
+=== 鉴权配置 ===
+SecurityFilterChain: /api/public/** = permitAll()
+SecurityFilterChain: /api/admin/** = hasRole('ADMIN')
+
+=== 潜在漏洞 ===
+[高危] URI 解析绕过漏洞
+  位置: SecurityConfig.java:45
+  说明: 使用 regexMatcher() 可能导致 /admin/. 接口绕过鉴权
+
+[高危] IDOR 越权漏洞
+  位置: UserController.getUserById (UserController.java:78)
+  说明: /api/user/{id} 接口缺少所有权校验，可能访问其他用户数据
+```
+
 ## 安装与使用
 
 ### 1. 安装 MCP Java Decompiler
@@ -103,7 +168,10 @@ Content-Type: application/json
 
 ```
 /java-route-mapper /path/to/java/project
+/java-auth-audit /path/to/java/project
 ```
+
+建议先使用 java-route-mapper 提取所有路由，再使用 java-auth-audit 分析鉴权机制，结合使用可完整审计项目的接口和权限控制。
 
 ## 最佳实践
 
