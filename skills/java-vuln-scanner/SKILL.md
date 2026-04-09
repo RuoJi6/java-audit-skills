@@ -1,6 +1,6 @@
 ---
 name: java-vuln-scanner
-description: Java 组件版本漏洞检测工具。扫描 pom.xml、build.gradle 或 jar 文件中的第三方依赖，匹配已知漏洞规则（CVE）并生成漏洞检测报告。适用于：(1) Java 项目依赖安全审计，(2) 识别 Log4j、Fastjson、Shiro、Spring 等高危组件漏洞，(3) jar 包反编译后的依赖提取。支持按目录层级分组输出，支持通过 java-decompile-mcp 反编译 .class/.jar 文件提取依赖信息。
+description: Java 组件版本漏洞检测工具。扫描 pom.xml、build.gradle 或 jar 文件中的第三方依赖，匹配已知漏洞规则（CVE）并生成漏洞检测报告。适用于：(1) Java 项目依赖安全审计，(2) 识别 Log4j、Fastjson、Shiro、Spring 等高危组件漏洞，(3) jar 包反编译后的依赖提取。支持按目录层级分组输出，支持通过 CFR 反编译 .class/.jar 文件提取依赖信息。
 ---
 
 # Java 组件漏洞扫描器
@@ -19,14 +19,14 @@ description: Java 组件版本漏洞检测工具。扫描 pom.xml、build.gradle
 
 ### 2. 处理 jar/class 文件（需要反编译时）
 
-当目标是 `.jar` 或 `.class` 文件且无法直接提取依赖信息时，使用 `java-decompile-mcp` 工具反编译：
+当目标是 `.jar` 或 `.class` 文件且无法直接提取依赖信息时，使用 CFR 反编译器（详见 `java-shared/DECOMPILE_STRATEGY.md`）：
 
-```
+```bash
 # 反编译单个文件
-mcp__java-decompile-mcp__decompile_file(file_path="/path/to/file.jar")
+java -jar {CFR_JAR} /path/to/file.jar --outputdir {output_path}/decompiled
 
 # 反编译目录
-mcp__java-decompile-mcp__decompile_directory(directory_path="/path/to/classes")
+find /path/to/classes -name "*.class" | xargs java -jar {CFR_JAR} --outputdir {output_path}/decompiled
 ```
 
 ### 3. 执行漏洞扫描

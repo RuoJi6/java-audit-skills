@@ -44,11 +44,7 @@ description: Java Web 源码路由与参数映射分析工具。从源码中提�
 
 2. **反编译该 namespace 下所有 Action 类**
    ```bash
-   mcp__java-decompile-mcp__decompile_directory(
-       directory_path="{WEB-INF/classes/对应包路径}",
-       recursive=true,
-       save_to_file=true
-   )
+   find {WEB-INF/classes/对应包路径} -name "*.class" | xargs java -jar {CFR_JAR} --outputdir {output_path}/decompiled
    ```
 
 3. **提取每个 Action 类的业务方法**

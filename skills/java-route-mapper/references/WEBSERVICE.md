@@ -125,9 +125,7 @@ find . -name "cxf*.xml"
 
 ```bash
 # 根据implementor找到的类名进行反编译
-mcp__java-decompile-mcp__decompile_file(
-  file_path="/path/to/UserServiceImpl.class"
-)
+java -jar {CFR_JAR} /path/to/UserServiceImpl.class --outputdir {output_path}/decompiled
 ```
 
 **从反编译结果中提取：**

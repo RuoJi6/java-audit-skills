@@ -225,37 +225,19 @@ file.transferTo(filePath)   ← 上传写入点
 
 ## 反编译阶段（CRITICAL）
 
-**当源码不可用时，必须使用 MCP Java Decompiler 反编译上传相关类。**
+**当源码不可用时，必须使用 CFR 反编译器反编译上传相关类（详见 `java-shared/DECOMPILE_STRATEGY.md`）。**
 
 ### 反编译工具调用
 
-```python
+```bash
 # 反编译单个上传相关类
-mcp__java-decompile-mcp__decompile_file(
-    file_path="/path/to/UploadController.class",
-    output_dir="/path/to/decompiled",
-    save_to_file=True
-)
+java -jar {CFR_JAR} /path/to/UploadController.class --outputdir {output_path}/decompiled
 
 # 反编译上传相关目录
-mcp__java-decompile-mcp__decompile_directory(
-    directory_path="/path/to/WEB-INF/classes/com/example/upload",
-    output_dir="/path/to/decompiled",
-    recursive=True,
-    save_to_file=True,
-    max_workers=4
-)
+find /path/to/WEB-INF/classes/com/example/upload -name "*.class" | xargs java -jar {CFR_JAR} --outputdir {output_path}/decompiled
 
 # 反编译多个指定文件
-mcp__java-decompile-mcp__decompile_files(
-    file_paths=[
-        "/path/to/UploadController.class",
-        "/path/to/FileStorageService.class",
-        "/path/to/UploadUtil.class"
-    ],
-    output_dir="/path/to/decompiled",
-    save_to_file=True
-)
+java -jar {CFR_JAR} /path/to/UploadController.class /path/to/FileStorageService.class /path/to/UploadUtil.class --outputdir {output_path}/decompiled
 ```
 
 ### 必须反编译的类

@@ -235,33 +235,15 @@ new FileInputStream(fullPath)  ← 文件读取点
 
 #### 反编译工具调用
 
-```python
+```bash
 # 反编译单个 Controller/Service 类
-mcp__java-decompile-mcp__decompile_file(
-    file_path="/path/to/FileController.class",
-    output_dir="/path/to/decompiled",
-    save_to_file=True
-)
+java -jar {CFR_JAR} /path/to/FileController.class --outputdir {output_path}/decompiled
 
 # 反编译文件操作相关目录
-mcp__java-decompile-mcp__decompile_directory(
-    directory_path="/path/to/WEB-INF/classes/com/example/controller",
-    output_dir="/path/to/decompiled",
-    recursive=True,
-    save_to_file=True,
-    max_workers=4
-)
+find /path/to/WEB-INF/classes/com/example/controller -name "*.class" | xargs java -jar {CFR_JAR} --outputdir {output_path}/decompiled
 
 # 反编译多个指定文件
-mcp__java-decompile-mcp__decompile_files(
-    file_paths=[
-        "/path/to/FileController.class",
-        "/path/to/FileService.class",
-        "/path/to/FileUtil.class"
-    ],
-    output_dir="/path/to/decompiled",
-    save_to_file=True
-)
+java -jar {CFR_JAR} /path/to/FileController.class /path/to/FileService.class /path/to/FileUtil.class --outputdir {output_path}/decompiled
 ```
 
 **输出文件命名规范：**

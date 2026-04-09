@@ -38,63 +38,42 @@
 
 ## 反编译工具使用
 
-### MCP Java Decompiler 调用方式
+### CFR CLI 反编译器
+
+> 详细的 CFR 获取策略和通用调用方式参见 `java-shared/DECOMPILE_STRATEGY.md`。
 
 #### 单个文件反编译
 
-```python
+```bash
 # 反编译单个 DAO/Mapper 类
-mcp__java-decompile-mcp__decompile_file(
-    file_path="/path/to/WEB-INF/classes/com/example/dao/UserDao.class",
-    output_dir="/path/to/decompiled",
-    save_to_file=True  # 推荐，直接保存到文件系统
-)
+java -jar {CFR_JAR} /path/to/WEB-INF/classes/com/example/dao/UserDao.class --outputdir {output_path}/decompiled
 ```
 
 #### 目录反编译
 
-```python
+```bash
 # 递归反编译整个 DAO 包
-mcp__java-decompile-mcp__decompile_directory(
-    directory_path="/path/to/WEB-INF/classes/com/example/dao",
-    output_dir="/path/to/decompiled",
-    recursive=True,
-    save_to_file=True,
-    show_progress=True,
-    max_workers=4  # 并发线程数
-)
+find /path/to/WEB-INF/classes/com/example/dao -name "*.class" | xargs java -jar {CFR_JAR} --outputdir {output_path}/decompiled
 ```
 
 #### 批量文件反编译
 
-```python
+```bash
 # 反编译多个指定的 SQL 相关类
-mcp__java-decompile-mcp__decompile_files(
-    file_paths=[
-        "/path/to/UserDao.class",
-        "/path/to/OrderMapper.class",
-        "/path/to/SqlHelper.class",
-        "/path/to/BaseRepository.class"
-    ],
-    output_dir="/path/to/decompiled",
-    save_to_file=True,
-    max_workers=4
-)
+java -jar {CFR_JAR} /path/to/UserDao.class /path/to/OrderMapper.class /path/to/SqlHelper.class /path/to/BaseRepository.class --outputdir {output_path}/decompiled
 ```
 
 #### 检查 Java 环境
 
-```python
+```bash
 # 检查 Java 版本（反编译需要）
-mcp__java-decompile-mcp__get_java_version()
+java -version
 
-# 检查 CFR 反编译器状态
-mcp__java-decompile-mcp__check_cfr_status()
+# 验证 CFR 是否可用
+java -jar {CFR_JAR} --help
 
-# 如需下载 CFR
-mcp__java-decompile-mcp__download_cfr_tool(
-    target_dir="/path/to/tools"
-)
+# 如果 CFR 不存在，下载
+curl -L -o {output_path}/cfr-0.152.jar "https://xget.xi-xu.me/gh/leibnitz27/cfr/releases/download/0.152/cfr-0.152.jar"
 ```
 
 ---
@@ -316,54 +295,38 @@ public class UserRepositoryImpl implements UserRepository {
 
 ### 策略 1: 最小化反编译（推荐）
 
-```python
+```bash
 # 只反编译与 SQL 直接相关的类
 
-# 步骤 1: 从配置文件识别 DAO/Mapper 类
-sql_classes = parse_spring_beans() + parse_mybatis_mappers()
+# 步骤 1: 从配置文件识别 DAO/Mapper 类，然后反编译
+find {classes_path} \( -name "*Dao.class" -o -name "*Mapper.class" -o -name "*Repository.class" \) | xargs java -jar {CFR_JAR} --outputdir {output_path}/decompiled
 
-# 步骤 2: 反编译 DAO/Mapper 类
-for cls in sql_classes:
-    decompile_file(cls)
+# 步骤 2: 阅读反编译结果，识别需要进一步分析的 SQL 相关依赖
 
-# 步骤 3: 从依赖中定位包含 SQL 拼接的类，判断是否需要反编译
-dependencies = extract_sql_dependencies(sql_classes)
-for dep in dependencies:
-    if is_sql_related(dep):
-        decompile_file(dep)
+# 步骤 3: 按需反编译依赖类
+java -jar {CFR_JAR} {classes_path}/com/example/util/SqlHelper.class --outputdir {output_path}/decompiled
 ```
 
 ### 策略 2: 层级反编译
 
-```python
+```bash
 # 第一层: 反编译 DAO/Mapper
-layer1 = ["*Dao.class", "*Mapper.class", "*Repository.class"]
-decompile_by_pattern(layer1)
+find {classes_path} \( -name "*Dao.class" -o -name "*Mapper.class" -o -name "*Repository.class" \) | xargs java -jar {CFR_JAR} --outputdir {output_path}/decompiled
 
 # 第二层: 反编译 Service（追踪调用链）
-layer2 = ["*Service.class", "*ServiceImpl.class"]
-decompile_by_pattern(layer2)
+find {classes_path} \( -name "*Service.class" -o -name "*ServiceImpl.class" \) | xargs java -jar {CFR_JAR} --outputdir {output_path}/decompiled
 
 # 第三层: 反编译工具类
-layer3 = ["*SqlUtil*.class", "*DbHelper*.class", "*SqlBuilder*.class"]
-decompile_by_pattern(layer3)
+find {classes_path} \( -name "*SqlUtil*.class" -o -name "*DbHelper*.class" -o -name "*SqlBuilder*.class" \) | xargs java -jar {CFR_JAR} --outputdir {output_path}/decompiled
 ```
 
 ### 策略 3: 按包反编译
 
-```python
+```bash
 # 当 SQL 类集中在特定包下
-sql_packages = [
-    "com/example/dao",
-    "com/example/mapper",
-    "com/example/repository"
-]
-
-for pkg in sql_packages:
-    mcp__java-decompile-mcp__decompile_directory(
-        directory_path=f"/WEB-INF/classes/{pkg}",
-        recursive=True
-    )
+find {classes_path}/com/example/dao -name "*.class" | xargs java -jar {CFR_JAR} --outputdir {output_path}/decompiled
+find {classes_path}/com/example/mapper -name "*.class" | xargs java -jar {CFR_JAR} --outputdir {output_path}/decompiled
+find {classes_path}/com/example/repository -name "*.class" | xargs java -jar {CFR_JAR} --outputdir {output_path}/decompiled
 ```
 
 ---
@@ -378,15 +341,15 @@ for pkg in sql_packages:
 - class 文件损坏
 
 **解决方案：**
-```python
+```bash
 # 检查 Java 版本
-mcp__java-decompile-mcp__get_java_version()
+java -version
 
-# 检查 CFR 状态
-mcp__java-decompile-mcp__check_cfr_status()
+# 验证 CFR 是否可用
+java -jar {CFR_JAR} --help
 
-# 如果需要，下载 CFR
-mcp__java-decompile-mcp__download_cfr_tool()
+# 如果 CFR 不存在，下载
+curl -L -o {output_path}/cfr-0.152.jar "https://xget.xi-xu.me/gh/leibnitz27/cfr/releases/download/0.152/cfr-0.152.jar"
 ```
 
 ### 故障 2: MyBatis 注解丢失
@@ -449,26 +412,23 @@ ResultSet rs = stmt.executeQuery(sql);
 
 ### 批量操作
 
-```python
+```bash
 # 一次性反编译多个文件，减少启动开销
-mcp__java-decompile-mcp__decompile_files(
-    file_paths=all_sql_classes,
-    max_workers=4
-)
+java -jar {CFR_JAR} file1.class file2.class file3.class --outputdir {output_path}/decompiled
 ```
 
-### 并行处理
+### 目录级批量处理
 
-```python
-# 使用多线程加速
-mcp__java-decompile-mcp__decompile_directory(
-    directory_path=dao_package,
-    max_workers=4  # 根据 CPU 核心数调整
-)
+```bash
+# 反编译整个 DAO 包
+find {classes_path}/com/example/dao -name "*.class" | xargs java -jar {CFR_JAR} --outputdir {output_path}/decompiled
+
+# 如果文件数量过多，使用分批处理
+find {classes_path} -name "*.class" | xargs -L 50 java -jar {CFR_JAR} --outputdir {output_path}/decompiled
 ```
 
 ### 缓存利用
 
-- 反编译结果默认保存到 `decompiled` 目录
-- 再次分析时可直接读取已反编译的文件
+- 反编译结果保存在 `{output_path}/decompiled/` 目录下
+- 再次分析时先检查是否已存在反编译结果
 - 避免重复反编译相同的类

@@ -35,89 +35,67 @@
 
 ## 反编译工具使用
 
-### MCP Java Decompiler
+### CFR CLI 反编译器
+
+> 详细的 CFR 获取策略和通用调用方式参见 `java-shared/DECOMPILE_STRATEGY.md`。
 
 #### 单个文件反编译
 
-```python
+```bash
 # 反编译单个 .class 文件
-mcp__java-decompile-mcp__decompile_file(
-    file_path="/path/to/MyController.class",
-    output_dir="/path/to/output"  # 可选，默认为 ./decompiled
-)
+java -jar {CFR_JAR} /path/to/MyController.class --outputdir {output_path}/decompiled
+
+# 反编译单个 .jar 文件
+java -jar {CFR_JAR} /path/to/app.jar --outputdir {output_path}/decompiled
 ```
 
 #### 目录反编译
 
-```python
+```bash
 # 递归反编译整个目录
-mcp__java-decompile-mcp__decompile_directory(
-    directory_path="/path/to/classes",
-    output_dir="/path/to/output",
-    recursive=True
-)
+find /path/to/classes -name "*.class" | xargs java -jar {CFR_JAR} --outputdir {output_path}/decompiled
 ```
 
 #### 批量文件反编译
 
-```python
+```bash
 # 反编译多个文件
-mcp__java-decompile-mcp__decompile_files(
-    file_paths=[
-        "/path/to/UserController.class",
-        "/path/to/ProductController.class",
-        "/path/to/OrderController.class"
-    ],
-    output_dir="/path/to/output"
-)
+java -jar {CFR_JAR} /path/to/UserController.class /path/to/ProductController.class /path/to/OrderController.class --outputdir {output_path}/decompiled
 ```
 
 ### 反编译策略
 
 #### 策略 1: 最小化反编译
 
-```python
+```bash
 # 只反编译需要的类，而非整个项目
-target_classes = []
+# 1. 先反编译 Controller 类
+find {classes_path} -name "*Controller.class" | xargs java -jar {CFR_JAR} --outputdir {output_path}/decompiled
 
-# 1. 从源码中找到需要反编译的类引用
-for controller in source_controllers:
-    for param_type in controller.parameter_types:
-        if param_type not in source_files:
-            target_classes.append(param_type)
-
-# 2. 只反编译这些类
-for class_file in target_classes:
-    decompile_file(class_file)
+# 2. 阅读反编译结果，识别需要进一步分析的参数类型
+# 3. 按需反编译参数类型类
+java -jar {CFR_JAR} {classes_path}/com/example/dto/UserDto.class --outputdir {output_path}/decompiled
 ```
 
 #### 策略 2: 层级反编译
 
-```python
+```bash
 # 1. 先反编译控制器类
-decompile_files(controller_classes)
+find {classes_path} -name "*Controller.class" | xargs java -jar {CFR_JAR} --outputdir {output_path}/decompiled
 
-# 2. 识别需要深入反编译的类型
-required_types = extract_types_from_controllers()
+# 2. 反编译参数类型（DTO/POJO）
+find {classes_path} \( -name "*Dto.class" -o -name "*VO.class" -o -name "*Request.class" \) | xargs java -jar {CFR_JAR} --outputdir {output_path}/decompiled
 
-# 3. 反编译参数类型
-decompile_files(required_types)
-
-# 4. 如果参数类型是嵌套对象，继续反编译
-nested_types = extract_nested_types(required_types)
-decompile_files(nested_types)
+# 3. 如果参数类型是嵌套对象，继续反编译
+java -jar {CFR_JAR} {classes_path}/com/example/dto/ProfileDto.class --outputdir {output_path}/decompiled
 ```
 
-#### 策略 3: 增量缓存
+#### 策略 3: 缓存利用
 
-```python
-# 维护反编译缓存
-decompiled_cache = {}
-
-def get_decompiled(class_file):
-    if class_file not in decompiled_cache:
-        decompiled_cache[class_file] = decompile_file(class_file)
-    return decompiled_cache[class_file]
+```bash
+# 已反编译的文件保存在 {output_path}/decompiled/ 目录下
+# 再次分析时先检查是否已存在反编译结果，避免重复反编译
+ls {output_path}/decompiled/com/example/controller/UserController.java
 ```
 
 ---
@@ -214,12 +192,14 @@ new Comparator() {
 - 混淆的代码
 
 **解决方案：**
-```python
+```bash
 # 检查 Java 版本
-mcp__java-decompile-mcp__get_java_version()
+java -version
 
-# 尝试使用不同的反编译器
-# 或记录为"无法反编译"
+# 验证 CFR 是否可用
+java -jar {CFR_JAR} --help
+
+# 如反编译结果不完整，记录为"无法反编译"并跳过
 ```
 
 ### 问题 2: 反编译结果不完整
@@ -295,22 +275,6 @@ role=GUEST
 - [ ] 参数类型可解析
 - [ ] 泛型信息合理
 
-### 对比源码（如果可用）
-
-```python
-def verify_decompiled(source_file, decompiled_content):
-    # 对比类名
-    assert extract_class_name(source) == extract_class_name(decompiled)
-
-    # 对比方法签名
-    source_methods = extract_method_signatures(source)
-    decompiled_methods = extract_method_signatures(decompiled)
-    assert set(source_methods) == set(decompiled_methods)
-
-    # 对比注解
-    assert compare_annotations(source, decompiled)
-```
-
 ---
 
 ## 记录反编译来源
@@ -337,40 +301,27 @@ def verify_decompiled(source_file, decompiled_content):
 
 ### 批量操作
 
-```python
+```bash
 # 一次性反编译多个文件，减少启动开销
-decompile_files(list_of_class_files)
+java -jar {CFR_JAR} file1.class file2.class file3.class --outputdir {output_path}/decompiled
 ```
 
-### 并行处理
+### 目录级批量处理
 
-```python
-# 对于独立文件，可并行反编译
-from concurrent.futures import ThreadPoolExecutor
+```bash
+# 反编译整个目录
+find {classes_path} -name "*.class" | xargs java -jar {CFR_JAR} --outputdir {output_path}/decompiled
 
-with ThreadPoolExecutor(max_workers=4) as executor:
-    futures = [executor.submit(decompile_file, f) for f in class_files]
-    results = [f.result() for f in futures]
+# 如果文件数量过多，使用分批处理
+find {classes_path} -name "*.class" | xargs -L 50 java -jar {CFR_JAR} --outputdir {output_path}/decompiled
 ```
 
-### 缓存策略
+### 缓存利用
 
-```python
-# 缓存反编译结果
-import hashlib
-import os
-
-def get_decompiled_cache_path(class_file):
-    hash_key = hashlib.md5(class_file.encode()).hexdigest()
-    return f"cache/decompiled/{hash_key}.java"
-
-def decompile_with_cache(class_file):
-    cache_path = get_decompiled_cache_path(class_file)
-    if os.path.exists(cache_path):
-        return read_file(cache_path)
-    result = decompile_file(class_file)
-    write_file(cache_path, result)
-    return result
+```bash
+# 反编译结果保存在 {output_path}/decompiled/ 目录下
+# 再次分析时先检查是否已存在反编译结果
+# 避免重复反编译相同的类
 ```
 
 ---
@@ -379,18 +330,6 @@ def decompile_with_cache(class_file):
 
 当项目同时包含源码和编译文件时：
 
-```python
-def get_class_info(class_name):
-    # 优先使用源码
-    source_file = find_source_file(class_name)
-    if source_file and is_readable(source_file):
-        return parse_source_file(source_file)
-
-    # 源码不存在则反编译
-    class_file = find_class_file(class_name)
-    if class_file:
-        return decompile_and_parse(class_file)
-
-    # 都不存在
-    return None
-```
+1. **优先使用源码** — 如果 `.java` 文件已存在，直接读取，不反编译
+2. **源码不存在则反编译** — 仅对没有源码的 `.class` 文件执行反编译
+3. **缓存利用** — 已反编译的文件保存在 `{output_path}/decompiled/` 目录下，避免重复反编译

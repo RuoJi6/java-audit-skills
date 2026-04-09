@@ -38,64 +38,42 @@
 
 ## 反编译工具使用
 
-### MCP Java Decompiler 调用方式
+### CFR CLI 反编译器
+
+> 详细的 CFR 获取策略和通用调用方式参见 `java-shared/DECOMPILE_STRATEGY.md`。
 
 #### 单个文件反编译
 
-```python
+```bash
 # 反编译单个 Filter/Interceptor 类
-mcp__java-decompile-mcp__decompile_file(
-    file_path="/path/to/WEB-INF/classes/com/example/filter/AuthFilter.class",
-    output_dir="/path/to/decompiled",
-    save_to_file=True  # 推荐，直接保存到文件系统
-)
+java -jar {CFR_JAR} /path/to/WEB-INF/classes/com/example/filter/AuthFilter.class --outputdir {output_path}/decompiled
 ```
 
 #### 目录反编译
 
-```python
+```bash
 # 递归反编译整个 security 包
-mcp__java-decompile-mcp__decompile_directory(
-    directory_path="/path/to/WEB-INF/classes/com/example/security",
-    output_dir="/path/to/decompiled",
-    recursive=True,
-    save_to_file=True,
-    show_progress=True,
-    max_workers=4  # 并发线程数
-)
+find /path/to/WEB-INF/classes/com/example/security -name "*.class" | xargs java -jar {CFR_JAR} --outputdir {output_path}/decompiled
 ```
 
 #### 批量文件反编译
 
-```python
+```bash
 # 反编译多个指定的鉴权相关类
-mcp__java-decompile-mcp__decompile_files(
-    file_paths=[
-        "/path/to/AuthFilter.class",
-        "/path/to/SecurityConfig.class",
-        "/path/to/PermissionInterceptor.class",
-        "/path/to/CustomRealm.class",
-        "/path/to/JwtTokenFilter.class"
-    ],
-    output_dir="/path/to/decompiled",
-    save_to_file=True,
-    max_workers=4
-)
+java -jar {CFR_JAR} /path/to/AuthFilter.class /path/to/SecurityConfig.class /path/to/PermissionInterceptor.class /path/to/CustomRealm.class /path/to/JwtTokenFilter.class --outputdir {output_path}/decompiled
 ```
 
 #### 检查 Java 环境
 
-```python
+```bash
 # 检查 Java 版本（反编译需要）
-mcp__java-decompile-mcp__get_java_version()
+java -version
 
-# 检查 CFR 反编译器状态
-mcp__java-decompile-mcp__check_cfr_status()
+# 验证 CFR 是否可用
+java -jar {CFR_JAR} --help
 
-# 如需下载 CFR
-mcp__java-decompile-mcp__download_cfr_tool(
-    target_dir="/path/to/tools"
-)
+# 如果 CFR 不存在，下载
+curl -L -o {output_path}/cfr-0.152.jar "https://xget.xi-xu.me/gh/leibnitz27/cfr/releases/download/0.152/cfr-0.152.jar"
 ```
 
 ---
@@ -440,20 +418,12 @@ decompile_by_pattern(layer4)
 
 ### 策略 3: 按包反编译
 
-```python
+```bash
 # 当鉴权类集中在特定包下
-auth_packages = [
-    "com/example/security",
-    "com/example/filter",
-    "com/example/interceptor",
-    "com/example/auth"
-]
-
-for pkg in auth_packages:
-    mcp__java-decompile-mcp__decompile_directory(
-        directory_path=f"/WEB-INF/classes/{pkg}",
-        recursive=True
-    )
+find {classes_path}/com/example/security -name "*.class" | xargs java -jar {CFR_JAR} --outputdir {output_path}/decompiled
+find {classes_path}/com/example/filter -name "*.class" | xargs java -jar {CFR_JAR} --outputdir {output_path}/decompiled
+find {classes_path}/com/example/interceptor -name "*.class" | xargs java -jar {CFR_JAR} --outputdir {output_path}/decompiled
+find {classes_path}/com/example/auth -name "*.class" | xargs java -jar {CFR_JAR} --outputdir {output_path}/decompiled
 ```
 
 ---
@@ -468,15 +438,15 @@ for pkg in auth_packages:
 - class 文件损坏
 
 **解决方案：**
-```python
+```bash
 # 检查 Java 版本
-mcp__java-decompile-mcp__get_java_version()
+java -version
 
-# 检查 CFR 状态
-mcp__java-decompile-mcp__check_cfr_status()
+# 验证 CFR 是否可用
+java -jar {CFR_JAR} --help
 
-# 如果需要，下载 CFR
-mcp__java-decompile-mcp__download_cfr_tool()
+# 如果 CFR 不存在，下载
+curl -L -o {output_path}/cfr-0.152.jar "https://xget.xi-xu.me/gh/leibnitz27/cfr/releases/download/0.152/cfr-0.152.jar"
 ```
 
 ### 问题 2: 变量名被混淆
@@ -548,26 +518,23 @@ new Predicate() {
 
 ### 批量操作
 
-```python
+```bash
 # 一次性反编译多个文件，减少启动开销
-mcp__java-decompile-mcp__decompile_files(
-    file_paths=all_auth_classes,
-    max_workers=4
-)
+java -jar {CFR_JAR} file1.class file2.class file3.class --outputdir {output_path}/decompiled
 ```
 
-### 并行处理
+### 目录级批量处理
 
-```python
-# 使用多线程加速
-mcp__java-decompile-mcp__decompile_directory(
-    directory_path=auth_package,
-    max_workers=4  # 根据 CPU 核心数调整
-)
+```bash
+# 反编译整个 security 包
+find {classes_path}/com/example/security -name "*.class" | xargs java -jar {CFR_JAR} --outputdir {output_path}/decompiled
+
+# 如果文件数量过多，使用分批处理
+find {classes_path} -name "*.class" | xargs -L 50 java -jar {CFR_JAR} --outputdir {output_path}/decompiled
 ```
 
 ### 缓存利用
 
-- 反编译结果默认保存到 `decompiled` 目录
-- 再次分析时可直接读取已反编译的文件
+- 反编译结果保存在 `{output_path}/decompiled/` 目录下
+- 再次分析时先检查是否已存在反编译结果
 - 避免重复反编译相同的类

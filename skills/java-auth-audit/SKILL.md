@@ -186,33 +186,15 @@ Host: {{host}}
 
 #### 3.1 反编译工具调用
 
-```python
+```bash
 # 反编译单个鉴权类
-mcp__java-decompile-mcp__decompile_file(
-    file_path="/path/to/AuthFilter.class",
-    output_dir="/path/to/decompiled",
-    save_to_file=True
-)
+java -jar {CFR_JAR} /path/to/AuthFilter.class --outputdir {output_path}/decompiled
 
 # 反编译鉴权相关目录
-mcp__java-decompile-mcp__decompile_directory(
-    directory_path="/path/to/WEB-INF/classes/com/example/security",
-    output_dir="/path/to/decompiled",
-    recursive=True,
-    save_to_file=True,
-    max_workers=4
-)
+find /path/to/WEB-INF/classes/com/example/security -name "*.class" | xargs java -jar {CFR_JAR} --outputdir {output_path}/decompiled
 
 # 反编译多个指定文件
-mcp__java-decompile-mcp__decompile_files(
-    file_paths=[
-        "/path/to/AuthFilter.class",
-        "/path/to/SecurityConfig.class",
-        "/path/to/PermissionInterceptor.class"
-    ],
-    output_dir="/path/to/decompiled",
-    save_to_file=True
-)
+java -jar {CFR_JAR} /path/to/AuthFilter.class /path/to/SecurityConfig.class /path/to/PermissionInterceptor.class --outputdir {output_path}/decompiled
 ```
 
 #### 3.2 必须反编译的类
