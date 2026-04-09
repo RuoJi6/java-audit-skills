@@ -6,7 +6,7 @@
 
 **报告交付方式**: 质检员完成校验后，将完整报告写入 `{output_path}/qa_reports/qa_report_{被校验agent名称}.md`，然后仅将「通过/不通过 + 文件路径」通知负责人。**禁止在消息中发送报告正文。**
 
-**重要**: 各 skill 已将输出模板外移到 `references/OUTPUT_TEMPLATE*.md` 文件中，采用【填写】占位符的填充式模板。质检时需同时验证输出是否符合对应 skill 的 OUTPUT_TEMPLATE 结构（章节数量、顺序、表格列）。通用输出规范见 `shared/OUTPUT_STANDARD.md`。
+**重要**: 各 skill 已将输出模板外移到 `references/OUTPUT_TEMPLATE*.md` 文件中，采用【填写】占位符的填充式模板。质检时需同时验证输出是否符合对应 skill 的 OUTPUT_TEMPLATE 结构（章节数量、顺序、表格列）。通用输出规范见 `java-shared/OUTPUT_STANDARD.md`。
 
 ---
 

@@ -9,7 +9,7 @@
 > 6. **必须列出所有路由，不得省略**
 > 7. 文件命名格式: `{project_name}_auth_mapping_{YYYYMMDD_HHMMSS}.md`
 >
-> 参考: shared/OUTPUT_STANDARD.md
+> 参考: java-shared/OUTPUT_STANDARD.md
 
 ---
 

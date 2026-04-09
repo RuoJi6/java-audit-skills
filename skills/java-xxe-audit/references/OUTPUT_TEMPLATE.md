@@ -8,7 +8,7 @@
 > 5. 不得自由发挥添加额外章节
 > 6. 文件命名格式: `{project_name}_xxe_audit_{YYYYMMDD_HHMMSS}.md`
 >
-> 参考: shared/OUTPUT_STANDARD.md
+> 参考: java-shared/OUTPUT_STANDARD.md
 
 ---
 

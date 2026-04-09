@@ -6,7 +6,7 @@
 > 3. **当入口类包含多个方法时必须生成此索引文件**
 > 4. 文件命名格式: `{project_name}_trace_all_methods_{YYYYMMDD_HHMMSS}.md`
 >
-> 参考: shared/OUTPUT_STANDARD.md
+> 参考: java-shared/OUTPUT_STANDARD.md
 
 ---
 

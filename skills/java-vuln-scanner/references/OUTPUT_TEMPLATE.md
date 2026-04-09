@@ -9,7 +9,7 @@
 > 6. **输出为单个文件** — 不得拆分为多个文件
 > 7. 文件命名格式: `{project_name}_vuln_report_{YYYYMMDD_HHMMSS}.md`
 >
-> 参考: shared/OUTPUT_STANDARD.md
+> 参考: java-shared/OUTPUT_STANDARD.md
 
 ---
 

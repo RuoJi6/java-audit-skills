@@ -8,7 +8,7 @@
 > 5. 必须独立追踪该方法的调用链到 Sink，禁止复用其他方法的结论
 > 6. 文件命名格式: `{project_name}_trace_{method_name}_{YYYYMMDD_HHMMSS}.md`
 >
-> 参考: shared/OUTPUT_STANDARD.md
+> 参考: java-shared/OUTPUT_STANDARD.md
 
 ---
 

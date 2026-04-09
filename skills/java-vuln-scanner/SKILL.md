@@ -171,4 +171,4 @@ python3 scripts/scan_dependencies.py /path/to/webapp \
     └── 5. 审计结论
 ```
 
-通用输出规范参考: [shared/OUTPUT_STANDARD.md](../shared/OUTPUT_STANDARD.md)
+通用输出规范参考: [java-shared/OUTPUT_STANDARD.md](../java-shared/OUTPUT_STANDARD.md)

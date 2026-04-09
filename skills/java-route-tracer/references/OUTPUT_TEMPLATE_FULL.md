@@ -8,7 +8,7 @@
 > 5. **适用于第 1 个接口的完整追踪，后续接口使用 OUTPUT_TEMPLATE_SIMPLE.md**
 > 6. 文件命名格式: `{project_name}_trace_{method_name}_{YYYYMMDD_HHMMSS}.md`
 >
-> 参考: shared/OUTPUT_STANDARD.md
+> 参考: java-shared/OUTPUT_STANDARD.md
 
 ---
 

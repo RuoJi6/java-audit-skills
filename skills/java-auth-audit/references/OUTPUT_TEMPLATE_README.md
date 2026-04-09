@@ -8,7 +8,7 @@
 > 5. **不要包含具体漏洞内容** — 只说明审计方法和局限性
 > 6. 文件命名格式: `{project_name}_auth_README_{YYYYMMDD_HHMMSS}.md`
 >
-> 参考: shared/OUTPUT_STANDARD.md
+> 参考: java-shared/OUTPUT_STANDARD.md
 
 ---
 

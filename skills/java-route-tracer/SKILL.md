@@ -376,7 +376,7 @@ mcp__java-decompile-mcp__decompile_files(
 - 所有【填写】占位符必须替换为实际内容
 - 每个方法必须独立追踪到 Sink，禁止复用其他方法结论
 - 多方法路由必须生成索引文件
-- 通用规范参考: [shared/OUTPUT_STANDARD.md](../shared/OUTPUT_STANDARD.md)
+- 通用规范参考: [java-shared/OUTPUT_STANDARD.md](../java-shared/OUTPUT_STANDARD.md)
 
 ### 单方法路由
 

@@ -7,7 +7,7 @@
 > 4. 文件命名格式: `{project_name}_route_README_{YYYYMMDD_HHMMSS}.md`
 > 5. 只包含本项目实际使用的框架的识别教程，不要列出未使用的框架
 >
-> 参考: shared/OUTPUT_STANDARD.md
+> 参考: java-shared/OUTPUT_STANDARD.md
 
 ---
 

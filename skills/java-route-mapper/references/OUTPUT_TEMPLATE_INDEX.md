@@ -8,7 +8,7 @@
 > 5. 文件命名格式: `{project_name}_route_mapper_{YYYYMMDD_HHMMSS}.md`
 > 6. 本文件为主索引，只包含概览和链接，不包含具体接口模板
 >
-> 参考: shared/OUTPUT_STANDARD.md
+> 参考: java-shared/OUTPUT_STANDARD.md
 
 ---
 

@@ -8,7 +8,7 @@
 > 5. **不要在主报告中列出完整路由清单** — 路由清单放在映射表文件中
 > 6. 文件命名格式: `{project_name}_auth_audit_{YYYYMMDD_HHMMSS}.md`
 >
-> 参考: shared/OUTPUT_STANDARD.md
+> 参考: java-shared/OUTPUT_STANDARD.md
 
 ---
 

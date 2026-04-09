@@ -838,7 +838,7 @@ SOAPAction: ""
 - 每个接口必须有完整的 Burp Suite 请求模板
 - 不得省略任何接口
 - 文件名根据实际项目中发现的模块名/namespace 动态生成
-- 通用规范参考: [shared/OUTPUT_STANDARD.md](../shared/OUTPUT_STANDARD.md)
+- 通用规范参考: [java-shared/OUTPUT_STANDARD.md](../java-shared/OUTPUT_STANDARD.md)
 
 **保存步骤：**
 1. 完成所有路由分析

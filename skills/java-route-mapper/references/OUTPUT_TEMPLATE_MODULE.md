@@ -10,7 +10,7 @@
 >    - 普通模块: `{project_name}_module_{module_name}_{YYYYMMDD_HHMMSS}.md`
 >    - Web Service: `{project_name}_ws_{service_name}_{YYYYMMDD_HHMMSS}.md`
 >
-> 参考: shared/OUTPUT_STANDARD.md
+> 参考: java-shared/OUTPUT_STANDARD.md
 
 ---
 
