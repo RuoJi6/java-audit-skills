@@ -47,6 +47,12 @@ java -jar {CFR_JAR} --help
 
 ## 2. CFR CLI 调用方式
 
+> **⚠️ 重要约束：**
+> - CFR **不接受目录路径**作为输入参数，只接受 `.class` 或 `.jar` 文件路径
+> - CFR **没有 `--recurse` 参数**，递归反编译必须使用 `find ... | xargs` 方式
+> - 直接传目录会报 `FileNotFoundException: ... (Is a directory)`
+> - 传 `--recurse true` 会报 `Unknown argument recurse`
+
 ### 2.1 单个文件反编译
 
 ```bash
