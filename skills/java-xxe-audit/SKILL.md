@@ -257,7 +257,7 @@ XXE 利用方式取决于是否有回显：
 
 ## 反编译阶段（CRITICAL）
 
-**当源码不可用时，必须使用 MCP Java Decompiler 反编译 XML 解析相关类。**
+**当源码不可用时，必须使用 CFR 反编译器反编译 XML 解析相关类。**
 
 详细策略参见 [DECOMPILE_STRATEGY.md](references/DECOMPILE_STRATEGY.md)
 

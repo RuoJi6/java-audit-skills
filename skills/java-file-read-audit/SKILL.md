@@ -229,7 +229,7 @@ new FileInputStream(fullPath)  ← 文件读取点
 
 ### 反编译阶段（CRITICAL）
 
-**当源码不可用时，必须使用 MCP Java Decompiler 反编译文件操作相关类。**
+**当源码不可用时，必须使用 CFR 反编译器反编译文件操作相关类。**
 
 详细策略参见 [DECOMPILE_STRATEGY.md](references/DECOMPILE_STRATEGY.md)
 
