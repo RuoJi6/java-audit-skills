@@ -38,63 +38,42 @@
 
 ## 反编译工具使用
 
-### MCP Java Decompiler 调用方式
+### CFR CLI 反编译器
+
+> 详细的 CFR 获取策略和通用调用方式参见 `java-shared/DECOMPILE_STRATEGY.md`。
 
 #### 单个文件反编译
 
-```python
+```bash
 # 反编译单个 XML 处理类
-mcp__java-decompile-mcp__decompile_file(
-    file_path="/path/to/WEB-INF/classes/com/example/util/XmlParser.class",
-    output_dir="/path/to/decompiled",
-    save_to_file=True
-)
+java -jar {CFR_JAR} /path/to/WEB-INF/classes/com/example/util/XmlParser.class --outputdir {output_path}/decompiled
 ```
 
 #### 目录反编译
 
-```python
+```bash
 # 递归反编译整个工具包
-mcp__java-decompile-mcp__decompile_directory(
-    directory_path="/path/to/WEB-INF/classes/com/example/util",
-    output_dir="/path/to/decompiled",
-    recursive=True,
-    save_to_file=True,
-    show_progress=True,
-    max_workers=4
-)
+find /path/to/WEB-INF/classes/com/example/util -name "*.class" | xargs java -jar {CFR_JAR} --outputdir {output_path}/decompiled
 ```
 
 #### 批量文件反编译
 
-```python
+```bash
 # 反编译多个 XML 相关类
-mcp__java-decompile-mcp__decompile_files(
-    file_paths=[
-        "/path/to/XmlUtil.class",
-        "/path/to/XmlParser.class",
-        "/path/to/SoapHandler.class",
-        "/path/to/XmlServlet.class"
-    ],
-    output_dir="/path/to/decompiled",
-    save_to_file=True,
-    max_workers=4
-)
+java -jar {CFR_JAR} /path/to/XmlUtil.class /path/to/XmlParser.class /path/to/SoapHandler.class /path/to/XmlServlet.class --outputdir {output_path}/decompiled
 ```
 
 #### 检查 Java 环境
 
-```python
+```bash
 # 检查 Java 版本
-mcp__java-decompile-mcp__get_java_version()
+java -version
 
-# 检查 CFR 反编译器状态
-mcp__java-decompile-mcp__check_cfr_status()
+# 验证 CFR 是否可用
+java -jar {CFR_JAR} --help
 
-# 如需下载 CFR
-mcp__java-decompile-mcp__download_cfr_tool(
-    target_dir="/path/to/tools"
-)
+# 如果 CFR 不存在，下载
+curl -L -o {output_path}/cfr-0.152.jar "https://xget.xi-xu.me/gh/leibnitz27/cfr/releases/download/0.152/cfr-0.152.jar"
 ```
 
 ---
@@ -292,10 +271,15 @@ return builder.parse(new InputSource(inputStream));
 ### 问题 1: 反编译失败
 
 **解决方案：**
-```python
-mcp__java-decompile-mcp__get_java_version()
-mcp__java-decompile-mcp__check_cfr_status()
-mcp__java-decompile-mcp__download_cfr_tool()
+```bash
+# 检查 Java 版本
+java -version
+
+# 验证 CFR 是否可用
+java -jar {CFR_JAR} --help
+
+# 如果 CFR 不存在，下载
+curl -L -o {output_path}/cfr-0.152.jar "https://xget.xi-xu.me/gh/leibnitz27/cfr/releases/download/0.152/cfr-0.152.jar"
 ```
 
 ### 问题 2: setFeature 调用被混淆

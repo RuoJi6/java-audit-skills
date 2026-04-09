@@ -52,7 +52,7 @@
 
 ### 使用的工具
 
-- 【填写：使用的工具列表，如 MCP Java Decompiler: CFR {version}；若无填 `无`】
+- 【填写：使用的工具列表，如 CFR 反编译器 {version}；若无填 `无`】
 
 ### 分析方法
 

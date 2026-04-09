@@ -257,39 +257,21 @@ XXE 利用方式取决于是否有回显：
 
 ## 反编译阶段（CRITICAL）
 
-**当源码不可用时，必须使用 MCP Java Decompiler 反编译 XML 解析相关类。**
+**当源码不可用时，必须使用 CFR 反编译器反编译 XML 解析相关类。**
 
 详细策略参见 [DECOMPILE_STRATEGY.md](references/DECOMPILE_STRATEGY.md)
 
 ### 反编译工具调用
 
-```python
+```bash
 # 反编译单个 XML 处理类
-mcp__java-decompile-mcp__decompile_file(
-    file_path="/path/to/XmlParser.class",
-    output_dir="/path/to/decompiled",
-    save_to_file=True
-)
+java -jar {CFR_JAR} /path/to/XmlParser.class --outputdir {output_path}/decompiled
 
 # 反编译 XML 处理相关目录
-mcp__java-decompile-mcp__decompile_directory(
-    directory_path="/path/to/WEB-INF/classes/com/example/util",
-    output_dir="/path/to/decompiled",
-    recursive=True,
-    save_to_file=True,
-    max_workers=4
-)
+find /path/to/WEB-INF/classes/com/example/util -name "*.class" | xargs java -jar {CFR_JAR} --outputdir {output_path}/decompiled
 
 # 反编译多个指定文件
-mcp__java-decompile-mcp__decompile_files(
-    file_paths=[
-        "/path/to/XmlUtil.class",
-        "/path/to/XmlParser.class",
-        "/path/to/SoapHandler.class"
-    ],
-    output_dir="/path/to/decompiled",
-    save_to_file=True
-)
+java -jar {CFR_JAR} /path/to/XmlUtil.class /path/to/XmlParser.class /path/to/SoapHandler.class --outputdir {output_path}/decompiled
 ```
 
 ### 必须反编译的类

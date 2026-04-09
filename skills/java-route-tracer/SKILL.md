@@ -333,31 +333,17 @@ SQL/数据库操作
 
 ### 4. 反编译支持
 
-当源码不可用时，使用 java-decompile-mcp 反编译：
+当源码不可用时，使用 CFR 反编译器（详见 `java-shared/DECOMPILE_STRATEGY.md`）：
 
-```python
+```bash
 # 反编译单个文件
-mcp__java-decompile-mcp__decompile_file(
-    file_path="/path/to/SomeClass.class",
-    output_dir="/path/to/output",
-    save_to_file=True
-)
+java -jar {CFR_JAR} /path/to/SomeClass.class --outputdir {output_path}/decompiled
 
 # 反编译目录
-mcp__java-decompile-mcp__decompile_directory(
-    directory_path="/path/to/classes",
-    output_dir="/path/to/output",
-    recursive=True,
-    save_to_file=True,
-    max_workers=4
-)
+find /path/to/classes -name "*.class" | xargs java -jar {CFR_JAR} --outputdir {output_path}/decompiled
 
 # 批量反编译
-mcp__java-decompile-mcp__decompile_files(
-    file_paths=["/path/to/A.class", "/path/to/B.class"],
-    output_dir="/path/to/output",
-    save_to_file=True
-)
+java -jar {CFR_JAR} /path/to/A.class /path/to/B.class --outputdir {output_path}/decompiled
 ```
 
 ---
@@ -1111,28 +1097,21 @@ session.createQuery("FROM User WHERE id = " + id);
 
 ### 反编译命令参考
 
-```python
+```bash
 # 检查 CFR 状态
-mcp__java-decompile-mcp__check_cfr_status()
+java -jar {CFR_JAR} --help
 
 # 检查 Java 版本
-mcp__java-decompile-mcp__get_java_version()
+java -version
 
 # 如果 CFR 不存在，下载
-mcp__java-decompile-mcp__download_cfr_tool(target_dir="/path/to/tools")
+curl -L -o {output_path}/cfr-0.152.jar "https://xget.xi-xu.me/gh/leibnitz27/cfr/releases/download/0.152/cfr-0.152.jar"
 
 # 反编译单个类
-mcp__java-decompile-mcp__decompile_file(
-    file_path="/path/to/AbstractDao.class",
-    save_to_file=True
-)
+java -jar {CFR_JAR} /path/to/AbstractDao.class --outputdir {output_path}/decompiled
 
 # 反编译整个 DAO 包
-mcp__java-decompile-mcp__decompile_directory(
-    directory_path="/path/to/com/example/dao",
-    recursive=True,
-    save_to_file=True
-)
+find /path/to/com/example/dao -name "*.class" | xargs java -jar {CFR_JAR} --outputdir {output_path}/decompiled
 ```
 
 ---

@@ -263,39 +263,21 @@ sql.append(" order by ").append(page.getOrderBy())  ← SQL 拼接点
 
 ### 3. 反编译阶段（CRITICAL）
 
-**当源码不可用时，必须使用 MCP Java Decompiler 反编译 SQL 相关类。**
+**当源码不可用时，必须使用 CFR 反编译器反编译 SQL 相关类。**
 
 详细策略参见 [DECOMPILE_STRATEGY.md](references/DECOMPILE_STRATEGY.md)
 
 #### 3.1 反编译工具调用
 
-```python
+```bash
 # 反编译单个 DAO/Mapper 类
-mcp__java-decompile-mcp__decompile_file(
-    file_path="/path/to/UserMapper.class",
-    output_dir="/path/to/decompiled",
-    save_to_file=True
-)
+java -jar {CFR_JAR} /path/to/UserMapper.class --outputdir {output_path}/decompiled
 
 # 反编译 DAO 相关目录
-mcp__java-decompile-mcp__decompile_directory(
-    directory_path="/path/to/WEB-INF/classes/com/example/dao",
-    output_dir="/path/to/decompiled",
-    recursive=True,
-    save_to_file=True,
-    max_workers=4
-)
+find /path/to/WEB-INF/classes/com/example/dao -name "*.class" | xargs java -jar {CFR_JAR} --outputdir {output_path}/decompiled
 
 # 反编译多个指定文件
-mcp__java-decompile-mcp__decompile_files(
-    file_paths=[
-        "/path/to/UserDao.class",
-        "/path/to/OrderService.class",
-        "/path/to/BaseMapper.class"
-    ],
-    output_dir="/path/to/decompiled",
-    save_to_file=True
-)
+java -jar {CFR_JAR} /path/to/UserDao.class /path/to/OrderService.class /path/to/BaseMapper.class --outputdir {output_path}/decompiled
 ```
 
 #### 3.2 必须反编译的类
