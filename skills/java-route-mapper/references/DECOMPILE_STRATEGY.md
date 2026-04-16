@@ -255,9 +255,8 @@ public enum UserRole {
 - 枚举类: `UserRole`
 - 可能值: `ADMIN`, `USER`, `GUEST`
 
-**请求模板：**
+**参数示例：**
 ```
-# 枚举参数的可能值
 role=ADMIN
 role=USER
 role=GUEST

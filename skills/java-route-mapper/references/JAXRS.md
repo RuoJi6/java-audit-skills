@@ -123,11 +123,10 @@ public Response login(
 ) { }
 ```
 
-**请求模板：**
+**参数格式：**
 ```
 Content-Type: application/x-www-form-urlencoded
-
-username=value&password=value
+参数: username (String), password (String)
 ```
 
 ### @HeaderParam - 请求头

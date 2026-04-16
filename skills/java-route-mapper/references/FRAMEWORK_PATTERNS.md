@@ -306,7 +306,7 @@ find "$PROJECT_DIR" -name "*.java" -type f | head -20 | xargs grep -l "@WebServl
 1. **记录所有 HTTP 入口点**（Servlet、Filter）
 2. **分析请求分发逻辑**
 3. **提取路由表构建规则**
-4. **手动构建请求模板**
+4. **手动构建路由和参数映射**
 
 **最小可行输出：**
 - URL 模式

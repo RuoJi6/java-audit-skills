@@ -5,7 +5,7 @@
 > 2. 不得调整章节顺序
 > 3. 所有【填写】占位符必须替换为实际内容，不得保留
 > 4. **必须列出该模块下所有接口，不得省略任何接口**
-> 5. **每个接口必须有完整的 Burp Suite 请求模板**
+> 5. **每个接口必须有完整的参数结构**
 > 6. 文件命名格式:
 >    - 普通模块: `{project_name}_module_{module_name}_{YYYYMMDD_HHMMSS}.md`
 >    - Web Service: `{project_name}_ws_{service_name}_{YYYYMMDD_HHMMSS}.md`
@@ -42,11 +42,10 @@
 位置: 【填写：ClassName.method (源文件路径:行号)】
 HTTP 方法: 【填写：GET / POST / PUT / DELETE】
 URL 路径: 【填写：完整 URL 路径】
+Content-Type: 【填写：如 application/x-www-form-urlencoded / application/json / text/xml】
 
-Burp Suite 请求模板(必须在代码块中):
-```http
-【填写：完整的 HTTP 请求，包含 Host、Content-Type、请求体等】
-```
+参数结构:
+  【填写：按 Path / Query / Body / Header / Cookie 分类列出所有参数及其类型】
 
 <!-- 重复区块结束 -->
 <!-- 如有多个 namespace 或框架类型，重复上述分组结构 -->
@@ -71,7 +70,7 @@ Burp Suite 请求模板(必须在代码块中):
 - [ ] 文件名符合命名规则
 - [ ] 所有【填写】占位符已替换为实际内容
 - [ ] 该模块下所有接口都已列出，无遗漏
-- [ ] 每个接口都有完整的 Burp Suite 请求模板（在代码块中）
+- [ ] 每个接口都有完整的参数结构（按 Path/Query/Body/Header/Cookie 分类）
 - [ ] 每个接口都有位置信息（ClassName.method + 文件路径 + 行号）
 - [ ] Web Service 接口的 URL 来自配置文件的 address 属性（非推断）
 - [ ] "3. 模块统计"的数字与实际列出的接口数一致

@@ -117,7 +117,7 @@ public class UserController {
 ```
 
 **提取要点：**
-- `params` 和 `headers` 条件需要在请求模板中体现
+- `params` 和 `headers` 条件需要在参数结构中体现
 - `consumes` 确定请求 Content-Type
 
 ---
@@ -209,9 +209,10 @@ public String upload(
 ) { }
 ```
 
-**请求模板：**
+**参数格式：**
 ```
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary
+Content-Type: multipart/form-data
+参数: file (MultipartFile), description (String)
 ```
 
 ---
